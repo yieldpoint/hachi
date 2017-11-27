@@ -1,6 +1,13 @@
 History
 =======
 
+0.5.2
+-----
+**release date:** 2017-11-27
+
+* Changed core.py to work with API Mode 1 instead of API Mode 2
+* Changed const.py so that TX_64_REQUEST = 0x10 instead of 0x00
+
 0.5.1
 -----
 **release date:** 2014-04-10

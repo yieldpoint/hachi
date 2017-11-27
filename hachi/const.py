@@ -16,7 +16,7 @@ XOFF = 0x13
 
 # API IDs for requests
 #: API ID for :class:`~hachi.request.Tx64Request`
-TX_64_REQUEST = 0x00
+TX_64_REQUEST = 0x10
 
 #: API ID for :class:`~hachi.request.Tx16Request`
 TX_16_REQUEST = 0x01
