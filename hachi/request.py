@@ -97,6 +97,9 @@ class Tx64Request(XBeeRequest):
         id_data = bytearray()
         id_data.append(self.frame_id)
         id_data.extend(pack('>Q', self.destination_address))
+        id_data.extend([0xFF])
+        id_data.extend([0xFE])
+        id_data.extend([0x00])
         id_data.append(self.options)
         id_data.extend(self.data)
         return id_data
