@@ -20,12 +20,10 @@ class XBee(object):
         :class:`~hachi.response.XBeeResponse` as first positional argument
 
     """
-
     def __init__(self, callback=None):
         self.callback = callback
         self.reset()
-        
-           
+
     def reset(self):
         """Reset the state of the parser"""
         #: Response
@@ -40,7 +38,6 @@ class XBee(object):
         :type data: int or bytes or bytearray
 
         """
-        
         if isinstance(data, str):  # python 2
             for c in data:
                 self.feed(ord(c))
@@ -50,28 +47,24 @@ class XBee(object):
                 self.feed(b)
             return
 
-        if not self.buffer or len(self.buffer) <= 4:    
+        if not self.buffer or len(self.buffer) <= 4:
             if data == FRAME_DELIMITER:
                 if self.buffer and not self.response:
                     logger.warning('New packet start before previous response is complete, discarding previous packet')
-                    print('New packet start before previous response is complete, discarding previous packet')
-                    print('data: ' + chr(data))
-                    print('self.buffer: '),
-                    print(self.buffer)
-                    print('self.response: '),
-                    print(self.response)
-                    
+                    logger.info('Data: %s' % chr(data))
+                    logger.debug('self.buffer: %s' % self.buffer)
+                    logger.debug('self.response: %s' % self.response)
+
                     if len(self.buffer) >= 3:
-                        print('length: ' + str(hex(self.buffer[1])) + ' ' + str(hex(self.buffer[2])))
-                        print('length: ' + str(self.buffer[1]) + ' ' + str(self.buffer[2]))
-                          
+                        logger.debug('length: %s %s' % (hex(self.buffer[1]), hex(self.buffer[2])))
+                        logger.debug('length: %s %s' % (self.buffer[1], self.buffer[2]))
+
                 self.reset()
                 self.buffer.append(data)
                 return
-        
+
         if not self.buffer:  # don't start the party without our start byte
             logger.debug('Found byte 0x%x while waiting for frame delimiter, discarding byte', data)
-            print('Found byte 0x%x while waiting for frame delimiter, discarding byte', data)
             return
 
         # append data to the buffer
@@ -80,33 +73,23 @@ class XBee(object):
         # check if frame is complete and valid and try to extract a response from it
         if len(self.buffer) > 4 and len(self.buffer) - 4 == (self.buffer[1] << 8) + self.buffer[2]:
             logger.debug('Frame complete: %s', ' '.join('%02X' % byte for byte in self.buffer))
-            
-            #print(self.buffer)
-            #print(len(self.buffer))
-            
+
             # verify the checksum
             if sum(self.buffer[3:]) & 0xff != 0xff:
                 logger.warning('Invalid checksum, discarding packet')
-                print('Invalid checksum, discarding packet')
                 self.reset()
                 return
-                
+
             # get the response
             if self.buffer[3] not in RESPONSE_MAP:
                 logger.error('Unknown api id %02x, discarding packet', self.buffer[3])
-                print('Unknown api id %02x, discarding packet', self.buffer[3])
                 self.reset()
                 return
-            
+
             # Return self.response to read_response(self, timeout=None)
             self.response = RESPONSE_MAP[self.buffer[3]](self.buffer)
             if self.callback is not None:
                 self.callback(self.response)
-        
-        # elif len(self.buffer) > length + 4:
-            # self.reset()
-            # return
-
 
 def escape(byte):
     """Escape a byte
