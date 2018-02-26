@@ -47,7 +47,7 @@ class XBeeSerial(XBee):
         :type request: :class:`~hachi.request.XBeeRequest`
 
         """
-        self.serial.write(escape_frame(request.frame))
+        self.serial.write(request.frame)
 
     def close(self):
         """Close the serial port"""
